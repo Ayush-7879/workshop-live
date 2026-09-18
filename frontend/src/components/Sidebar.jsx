@@ -14,23 +14,20 @@ export default function Sidebar() {
     theme === "dark" ||
     (theme === "system" && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
 
+  // Workshops/Students/Paid Courses/Leaderboard/Attendance/Certificates/
+  // Recordings are already switchable as in-page tabs once you're on the
+  // dashboard (see AdminDashboard.jsx / StudentDashboard.jsx) — listing
+  // them again here just duplicated the same links twice on one screen.
+  // The sidebar now only carries the one entry point into each dashboard
+  // plus Profile, which isn't available anywhere else.
   const links =
     user.role === "admin"
       ? [
           { to: dashboardPath, label: "Workshops", icon: "🏠", end: true },
-          { to: `${dashboardPath}?view=students`, label: "Students", icon: "👥" },
-          { to: `${dashboardPath}?view=courses`, label: "Paid Courses", icon: "💰" },
-          { to: `${dashboardPath}?view=leaderboard`, label: "Leaderboard", icon: "🏆" },
           { to: "/profile", label: "Profile", icon: "👤" },
         ]
       : [
           { to: dashboardPath, label: "Dashboard", icon: "🏠", end: true },
-          { to: `${dashboardPath}?tab=joined`, label: "My Workshops", icon: "📚" },
-          { to: `${dashboardPath}?tab=attendance`, label: "Attendance", icon: "📋" },
-          { to: `${dashboardPath}?tab=courses`, label: "Paid Courses", icon: "💰" },
-          { to: `${dashboardPath}?tab=leaderboard`, label: "Leaderboard", icon: "🏆" },
-          { to: `${dashboardPath}?tab=certificates`, label: "Certificates", icon: "🎓" },
-          { to: `${dashboardPath}?tab=recordings`, label: "Recordings", icon: "🎬" },
           { to: "/profile", label: "Profile", icon: "👤" },
         ];
 

@@ -1089,127 +1089,97 @@ label { font-weight: 600; font-size: 0.82rem; color: var(--text-dim); text-trans
 }
 .view-details-link:hover { text-decoration: underline; }
 .workshop-meta a { color: var(--primary-dark); font-weight: 600; }
-/* ---------- Navbar: mobile responsiveness ---------- */
-@media (max-width: 640px) {
-.navbar {
-padding: 12px 14px;
-flex-wrap: wrap;
-row-gap: 8px;
-}
-.navbar .brand {
-font-size: 1.05rem;
-}
-.navbar .links {
-gap: 8px;
-flex-wrap: wrap;
-}
-.navbar .user-chip {
-display: none;
-}
-.navbar .nav-link {
-font-size: 0.85rem;
-padding: 6px 2px;
-}
-.navbar button.logout-btn {
-padding: 6px 12px;
-font-size: 0.78rem;
-}
-}
 
 /* ---------- Footer ---------- */
 .site-footer {
-margin-top: 60px;
-background: var(--surface);
-border-top: 1px solid var(--border);
+  margin-top: 60px;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
 }
 .footer-inner {
-max-width: 980px;
-margin: 0 auto;
-padding: 40px 20px 24px;
-display: grid;
-grid-template-columns: 2fr 1fr 1fr 1fr;
-gap: 28px;
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 40px 20px 24px;
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 28px;
 }
 .footer-brand .footer-logo {
-display: flex;
-align-items: center;
-gap: 8px;
-font-family: "Poppins", sans-serif;
-font-weight: 700;
-font-size: 1.1rem;
-margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: "Poppins", sans-serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+  margin-bottom: 8px;
 }
 .footer-brand .footer-logo .logo-badge {
-width: 30px;
-height: 30px;
-border-radius: 9px;
-background: var(--primary-light);
-display: flex;
-align-items: center;
-justify-content: center;
-font-size: 0.95rem;
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  background: var(--primary-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
 }
 .footer-tagline {
-color: var(--text-dim);
-font-size: 0.85rem;
-line-height: 1.6;
-max-width: 320px;
-margin: 0;
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  line-height: 1.6;
+  max-width: 320px;
+  margin: 0;
 }
 .footer-col h4 {
-font-size: 0.78rem;
-text-transform: uppercase;
-letter-spacing: 0.04em;
-color: var(--text-dim);
-margin: 0 0 12px;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-dim);
+  margin: 0 0 12px;
 }
 .footer-link {
-display: block;
-color: var(--text);
-font-size: 0.88rem;
-font-weight: 500;
-margin-bottom: 8px;
+  display: block;
+  color: var(--text);
+  font-size: 0.88rem;
+  font-weight: 500;
+  margin-bottom: 8px;
 }
 .footer-link:hover { color: var(--primary); }
 .footer-social-link {
-display: inline-flex;
-align-items: center;
-gap: 8px;
-color: var(--text);
-font-size: 0.88rem;
-font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text);
+  font-size: 0.88rem;
+  font-weight: 600;
 }
 .footer-social-link:hover { color: var(--primary); }
 .footer-social-icon {
-width: 26px;
-height: 26px;
-border-radius: 50%;
-background: var(--primary-light);
-color: var(--primary-dark);
-display: flex;
-align-items: center;
-justify-content: center;
-font-family: "Poppins", sans-serif;
-font-weight: 800;
-font-size: 0.85rem;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--primary-light);
+  color: var(--primary-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Poppins", sans-serif;
+  font-weight: 800;
+  font-size: 0.85rem;
 }
 .footer-bottom {
-border-top: 1px solid var(--border);
-padding: 16px 20px;
-text-align: center;
-color: var(--text-dim);
-font-size: 0.78rem;
+  border-top: 1px solid var(--border);
+  padding: 16px 20px;
+  text-align: center;
+  color: var(--text-dim);
+  font-size: 0.78rem;
 }
 
 @media (max-width: 720px) {
-.footer-inner {
-grid-template-columns: 1fr 1fr;
-}
+  .footer-inner { grid-template-columns: 1fr 1fr; }
 }
 @media (max-width: 480px) {
-.footer-inner {
-grid-template-columns: 1fr;
-}
+  .footer-inner { grid-template-columns: 1fr; }
 }
 
 /* ---------- Scrollable tables on narrow screens ---------- */
@@ -1227,16 +1197,16 @@ table.student-table { display: block; }
 
   .container { padding: 20px 16px 72px; }
 
-  /* Navbar: brand + actions on one line, chip text drops, everything
-     shrinks just enough to fit a 360px-wide phone without wrapping. */
-  .navbar { padding: 12px 14px; gap: 8px; }
-  .navbar .brand { font-size: 1rem; gap: 6px; }
-  .navbar .brand .logo-badge { width: 28px; height: 28px; font-size: 0.9rem; border-radius: 8px; }
-  .navbar .links { gap: 6px; }
-  .navbar .user-chip { display: none; }
-  .navbar .nav-link { font-size: 0.82rem; padding: 6px 2px; }
-  .navbar button.logout-btn { padding: 7px 12px; font-size: 0.76rem; }
-  .bell-btn { width: 34px; height: 34px; font-size: 1.02rem; }
+  /* Navbar: two rows instead of one cramped line — brand on its own row,
+     actions (chip/bell/logout or login/register) wrap to a second row
+     right-aligned. Nothing needs to shrink to near-illegible sizes. */
+  .navbar { flex-wrap: wrap; row-gap: 10px; padding: 12px 16px; }
+  .navbar .brand { flex: 1 1 100%; font-size: 1.1rem; }
+  .navbar .links { flex: 1 1 100%; justify-content: flex-end; flex-wrap: wrap; row-gap: 8px; }
+  .navbar .user-chip { font-size: 0.8rem; padding: 5px 12px; }
+  .navbar .nav-link { font-size: 0.9rem; padding: 6px 4px; }
+  .navbar button.logout-btn { padding: 7px 14px; font-size: 0.82rem; flex-shrink: 0; }
+  .bell-btn { width: 36px; height: 36px; font-size: 1.05rem; flex-shrink: 0; }
 
   .toast-stack { top: 72px; left: 12px; right: 12px; }
   .toast { min-width: 0; max-width: none; width: 100%; }
@@ -1263,19 +1233,32 @@ table.student-table { display: block; }
   .theme-toggle { margin: 8px 16px 0; }
 
   .page-header { flex-direction: column; align-items: flex-start; gap: 6px; margin-bottom: 18px; }
-  .page-header h2 { font-size: 1.3rem; }
+  .page-header h2 { font-size: 1.4rem; }
 
   .toolbar-row { flex-direction: column; align-items: stretch; }
-  .search-input { width: 100%; min-width: 0; }
-  .tabs { flex-wrap: wrap; gap: 8px; }
-  .tabs button { padding: 8px 14px; font-size: 0.82rem; }
+  .search-input { width: 100%; min-width: 0; flex: 1 1 100%; }
+
+  /* Tabs scroll horizontally instead of wrapping/squeezing into tiny text. */
+  .tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    gap: 8px;
+    padding-bottom: 2px;
+    margin-bottom: 16px;
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tabs button { flex-shrink: 0; white-space: nowrap; }
+
+  .btn { flex-shrink: 0; }
 
   .card { padding: 16px; border-radius: var(--radius-sm); }
   .workshop-grid { grid-template-columns: 1fr; gap: 14px; }
   .certificate-grid { grid-template-columns: 1fr; }
   .stat-row { grid-template-columns: repeat(2, 1fr); gap: 10px; }
   .stat-tile { padding: 14px; }
-  .stat-tile .stat-num { font-size: 1.35rem; }
+  .stat-tile .stat-num { font-size: 1.5rem; }
 
   .form-box { padding: 24px 18px; border-radius: 16px; }
   .auth-form-panel { padding: 24px 14px; }
@@ -1342,7 +1325,7 @@ table.student-table { display: block; }
 .sidebar-more-menu .theme-toggle { margin-top: 6px; }
 
 @media (max-width: 640px) {
-  .sidebar { position: relative; }
+  .sidebar { position: relative; top: auto; margin-top: 0; }
   .sidebar-links { display: none; }
   .theme-toggle-desktop { display: none; }
   .sidebar-links-mobile {

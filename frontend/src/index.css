@@ -1211,3 +1211,88 @@ grid-template-columns: 1fr 1fr;
 grid-template-columns: 1fr;
 }
 }
+
+/* ---------- Scrollable tables on narrow screens ---------- */
+.student-table { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+table.student-table { display: block; }
+.student-table table, table.student-table { min-width: 480px; }
+
+/* =====================================================================
+   Mobile-first pass — phones (<=640px). Everything above stays the
+   base/tablet styling; these overrides tighten spacing, un-crowd the
+   navbar and make grids, tables and panels behave on a 360-430px screen.
+   ===================================================================== */
+@media (max-width: 640px) {
+  html, body { overflow-x: hidden; }
+
+  .container { padding: 20px 16px 72px; }
+
+  /* Navbar: brand + actions on one line, chip text drops, everything
+     shrinks just enough to fit a 360px-wide phone without wrapping. */
+  .navbar { padding: 12px 14px; gap: 8px; }
+  .navbar .brand { font-size: 1rem; gap: 6px; }
+  .navbar .brand .logo-badge { width: 28px; height: 28px; font-size: 0.9rem; border-radius: 8px; }
+  .navbar .links { gap: 6px; }
+  .navbar .user-chip { display: none; }
+  .navbar .nav-link { font-size: 0.82rem; padding: 6px 2px; }
+  .navbar button.logout-btn { padding: 7px 12px; font-size: 0.76rem; }
+  .bell-btn { width: 34px; height: 34px; font-size: 1.02rem; }
+
+  .toast-stack { top: 72px; left: 12px; right: 12px; }
+  .toast { min-width: 0; max-width: none; width: 100%; }
+
+  .notif-panel { position: fixed; left: 12px; right: 12px; top: 68px; width: auto; }
+
+  /* Sidebar becomes a horizontally-scrolling tab strip instead of a
+     wrapping block of pills, so it stays one tidy row on a phone. */
+  .app-shell { max-width: 100%; }
+  .sidebar {
+    margin-top: 0;
+    padding: 10px 4px;
+    gap: 0;
+  }
+  .sidebar-links {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 0 12px 4px;
+    scrollbar-width: none;
+  }
+  .sidebar-links::-webkit-scrollbar { display: none; }
+  .sidebar-link { flex-shrink: 0; padding: 8px 12px; font-size: 0.85rem; }
+  .theme-toggle { margin: 8px 16px 0; }
+
+  .page-header { flex-direction: column; align-items: flex-start; gap: 6px; margin-bottom: 18px; }
+  .page-header h2 { font-size: 1.3rem; }
+
+  .toolbar-row { flex-direction: column; align-items: stretch; }
+  .search-input { width: 100%; min-width: 0; }
+  .tabs { flex-wrap: wrap; gap: 8px; }
+  .tabs button { padding: 8px 14px; font-size: 0.82rem; }
+
+  .card { padding: 16px; border-radius: var(--radius-sm); }
+  .workshop-grid { grid-template-columns: 1fr; gap: 14px; }
+  .certificate-grid { grid-template-columns: 1fr; }
+  .stat-row { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .stat-tile { padding: 14px; }
+  .stat-tile .stat-num { font-size: 1.35rem; }
+
+  .form-box { padding: 24px 18px; border-radius: 16px; }
+  .auth-form-panel { padding: 24px 14px; }
+  .auth-hero { padding: 32px 22px; }
+  .auth-hero h1 { font-size: 1.6rem; }
+
+  .hero-card { padding: 18px; gap: 14px; }
+  .hero-greeting { font-size: 1.1rem; }
+  .hero-sub { font-size: 0.88rem; }
+  .hero-ring-wrap { width: 76px; height: 76px; }
+
+  .profile-header-card { flex-direction: column; text-align: center; gap: 12px; padding: 18px; }
+  .completion-row { flex-direction: column; align-items: stretch; }
+  .completion-row .progress-bar-track { max-width: none; }
+
+  .banner-preview { flex-direction: column; align-items: flex-start; }
+  .workshop-banner { margin: -16px -16px 14px; height: 90px; }
+
+  .inline-form select, .inline-form input { min-width: 0; flex-basis: 100%; }
+}

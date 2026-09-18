@@ -542,6 +542,7 @@ label { font-weight: 600; font-size: 0.82rem; color: var(--text-dim); text-trans
 
 /* ---------- Tabs ---------- */
 .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+.tabs-scroll-hint { display: none; } /* only shown on mobile, see the max-width:640px block below */
 .tabs button {
   padding: 9px 18px;
   border-radius: 20px;
@@ -554,25 +555,6 @@ label { font-weight: 600; font-size: 0.82rem; color: var(--text-dim); text-trans
   transition: all 0.15s ease;
 }
 .tabs button.active { background: var(--gradient); color: white; border-color: transparent; box-shadow: 0 6px 16px rgba(107, 90, 240, 0.3); }
-
-/* Wrapper adds a right-edge fade + "›" hint when .tabs overflows and can
-   still be scrolled — purely a visual cue, JS toggles it via tabsScrollable. */
-.tabs-wrap { position: relative; display: flex; align-items: center; min-width: 0; }
-.tabs-wrap .tabs { flex: 1; min-width: 0; }
-.tabs-scroll-hint {
-  position: absolute;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  display: flex;
-  align-items: center;
-  padding: 0 4px 0 24px;
-  font-size: 1.3rem;
-  font-weight: 700;
-  color: var(--text-dim);
-  background: linear-gradient(to right, transparent, var(--bg) 65%);
-  pointer-events: none;
-}
 
 /* ---------- Workshop card content ---------- */
 .workshop-title { font-size: 1.15rem; font-weight: 700; margin-bottom: 4px; font-family: "Poppins", sans-serif; }
@@ -1258,6 +1240,7 @@ table.student-table { display: block; }
   .search-input { width: 100%; min-width: 0; flex: 1 1 100%; }
 
   /* Tabs scroll horizontally instead of wrapping/squeezing into tiny text. */
+  .tabs-wrap { position: relative; }
   .tabs {
     flex-wrap: nowrap;
     overflow-x: auto;
@@ -1269,6 +1252,29 @@ table.student-table { display: block; }
   }
   .tabs::-webkit-scrollbar { display: none; }
   .tabs button { flex-shrink: 0; white-space: nowrap; }
+
+  /* Small fading "more tabs" hint shown only while there's more to scroll to. */
+  .tabs-scroll-hint {
+    display: flex;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 18px;
+    width: 32px;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 2px;
+    background: linear-gradient(to right, transparent, var(--bg) 55%);
+    color: var(--text-dim);
+    font-size: 1.15rem;
+    font-weight: 700;
+    pointer-events: none;
+    animation: tabs-hint-nudge 1.4s ease-in-out infinite;
+  }
+  @keyframes tabs-hint-nudge {
+    0%, 100% { transform: translateX(0); }
+    50% { transform: translateX(3px); }
+  }
 
   .btn { flex-shrink: 0; }
 

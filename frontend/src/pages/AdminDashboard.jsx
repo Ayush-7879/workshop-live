@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import api from "../api/axios.js";
 import { useAuth } from "../context/AuthContext.jsx";
@@ -48,6 +48,27 @@ export default function AdminDashboard() {
     setView(v);
     setSearchParams(v === "workshops" ? {} : { view: v });
   };
+
+  // Mobile tab bar scrolls horizontally — show a small "more tabs" hint
+  // arrow while there's more content to the right, hide it once scrolled
+  // to the end so it doesn't look like a stray button.
+  const tabsRef = useRef(null);
+  const [tabsScrollable, setTabsScrollable] = useState(false);
+
+  useEffect(() => {
+    const el = tabsRef.current;
+    if (!el) return;
+    const check = () => {
+      setTabsScrollable(el.scrollWidth - el.scrollLeft - el.clientWidth > 4);
+    };
+    check();
+    el.addEventListener("scroll", check, { passive: true });
+    window.addEventListener("resize", check);
+    return () => {
+      el.removeEventListener("scroll", check);
+      window.removeEventListener("resize", check);
+    };
+  }, []);
 
   const load = useCallback(async () => {
     const { data } = await api.get("/workshops");
@@ -153,19 +174,26 @@ export default function AdminDashboard() {
         )}
       </div>
 
-      <div className="tabs">
-        <button className={view === "workshops" ? "active" : ""} onClick={() => changeView("workshops")}>
-          Workshops
-        </button>
-        <button className={view === "students" ? "active" : ""} onClick={() => changeView("students")}>
-          👥 Students
-        </button>
-        <button className={view === "courses" ? "active" : ""} onClick={() => changeView("courses")}>
-          💰 Paid Courses
-        </button>
-        <button className={view === "leaderboard" ? "active" : ""} onClick={() => changeView("leaderboard")}>
-          🏆 Leaderboard
-        </button>
+      <div className="tabs-wrap">
+        <div className="tabs" ref={tabsRef}>
+          <button className={view === "workshops" ? "active" : ""} onClick={() => changeView("workshops")}>
+            Workshops
+          </button>
+          <button className={view === "students" ? "active" : ""} onClick={() => changeView("students")}>
+            👥 Students
+          </button>
+          <button className={view === "courses" ? "active" : ""} onClick={() => changeView("courses")}>
+            💰 Paid Courses
+          </button>
+          <button className={view === "leaderboard" ? "active" : ""} onClick={() => changeView("leaderboard")}>
+            🏆 Leaderboard
+          </button>
+        </div>
+        {tabsScrollable && (
+          <span className="tabs-scroll-hint" aria-hidden="true">
+            ›
+          </span>
+        )}
       </div>
 
       {view === "students" && <StudentDirectory />}

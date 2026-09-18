@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useMemo } from "react";
+import React, { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import api from "../api/axios.js";
 import { useAuth } from "../context/AuthContext.jsx";
@@ -51,6 +51,27 @@ export default function StudentDashboard() {
     setTab(t);
     setSearchParams(t === "all" ? {} : { tab: t });
   };
+
+  // Mobile tab bar scrolls horizontally — show a small "more tabs" hint
+  // arrow while there's more content to the right, hide it once scrolled
+  // to the end so it doesn't look like a stray button.
+  const tabsRef = useRef(null);
+  const [tabsScrollable, setTabsScrollable] = useState(false);
+
+  useEffect(() => {
+    const el = tabsRef.current;
+    if (!el) return;
+    const check = () => {
+      setTabsScrollable(el.scrollWidth - el.scrollLeft - el.clientWidth > 4);
+    };
+    check();
+    el.addEventListener("scroll", check, { passive: true });
+    window.addEventListener("resize", check);
+    return () => {
+      el.removeEventListener("scroll", check);
+      window.removeEventListener("resize", check);
+    };
+  }, []);
 
   const load = useCallback(async () => {
     const { data } = await api.get("/workshops");
@@ -153,28 +174,35 @@ export default function StudentDashboard() {
       </div>
 
       <div className="toolbar-row">
-        <div className="tabs">
-          <button className={tab === "all" ? "active" : ""} onClick={() => changeTab("all")}>
-            All Workshops
-          </button>
-          <button className={tab === "joined" ? "active" : ""} onClick={() => changeTab("joined")}>
-            My Joined Workshops
-          </button>
-          <button className={tab === "attendance" ? "active" : ""} onClick={() => changeTab("attendance")}>
-            📋 My Attendance
-          </button>
-          <button className={tab === "courses" ? "active" : ""} onClick={() => changeTab("courses")}>
-            💰 Paid Courses
-          </button>
-          <button className={tab === "leaderboard" ? "active" : ""} onClick={() => changeTab("leaderboard")}>
-            🏆 Leaderboard
-          </button>
-          <button className={tab === "certificates" ? "active" : ""} onClick={() => changeTab("certificates")}>
-            🎓 Certificates
-          </button>
-          <button className={tab === "recordings" ? "active" : ""} onClick={() => changeTab("recordings")}>
-            🎬 Recordings
-          </button>
+        <div className="tabs-wrap">
+          <div className="tabs" ref={tabsRef}>
+            <button className={tab === "all" ? "active" : ""} onClick={() => changeTab("all")}>
+              All Workshops
+            </button>
+            <button className={tab === "joined" ? "active" : ""} onClick={() => changeTab("joined")}>
+              My Joined Workshops
+            </button>
+            <button className={tab === "attendance" ? "active" : ""} onClick={() => changeTab("attendance")}>
+              📋 My Attendance
+            </button>
+            <button className={tab === "courses" ? "active" : ""} onClick={() => changeTab("courses")}>
+              💰 Paid Courses
+            </button>
+            <button className={tab === "leaderboard" ? "active" : ""} onClick={() => changeTab("leaderboard")}>
+              🏆 Leaderboard
+            </button>
+            <button className={tab === "certificates" ? "active" : ""} onClick={() => changeTab("certificates")}>
+              🎓 Certificates
+            </button>
+            <button className={tab === "recordings" ? "active" : ""} onClick={() => changeTab("recordings")}>
+              🎬 Recordings
+            </button>
+          </div>
+          {tabsScrollable && (
+            <span className="tabs-scroll-hint" aria-hidden="true">
+              ›
+            </span>
+          )}
         </div>
         {tab === "all" || tab === "joined" ? (
           <input

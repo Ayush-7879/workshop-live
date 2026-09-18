@@ -555,6 +555,25 @@ label { font-weight: 600; font-size: 0.82rem; color: var(--text-dim); text-trans
 }
 .tabs button.active { background: var(--gradient); color: white; border-color: transparent; box-shadow: 0 6px 16px rgba(107, 90, 240, 0.3); }
 
+/* Wrapper adds a right-edge fade + "›" hint when .tabs overflows and can
+   still be scrolled — purely a visual cue, JS toggles it via tabsScrollable. */
+.tabs-wrap { position: relative; display: flex; align-items: center; min-width: 0; }
+.tabs-wrap .tabs { flex: 1; min-width: 0; }
+.tabs-scroll-hint {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  padding: 0 4px 0 24px;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text-dim);
+  background: linear-gradient(to right, transparent, var(--bg) 65%);
+  pointer-events: none;
+}
+
 /* ---------- Workshop card content ---------- */
 .workshop-title { font-size: 1.15rem; font-weight: 700; margin-bottom: 4px; font-family: "Poppins", sans-serif; }
 .workshop-meta { font-size: 0.85rem; color: var(--text-dim); margin-bottom: 10px; display: flex; flex-wrap: wrap; gap: 14px; }

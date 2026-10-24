@@ -9,6 +9,7 @@ const { Server } = require("socket.io");
 
 const connectDB = require("./config/db");
 const authRoutes = require("./routes/auth");
+const instituteRoutes = require("./routes/institute");
 const workshopRoutes = require("./routes/workshops");
 const notificationRoutes = require("./routes/notifications");
 const resourceRoutes = require("./routes/resources");
@@ -23,6 +24,7 @@ const feedbackRoutes = require("./routes/feedback");
 const recordingRoutes = require("./routes/recordings");
 const Workshop = require("./models/Workshop");
 const Notification = require("./models/Notification");
+const { migrateToInstitutes } = require("./utils/migrateInstitutes");
 
 const app = express();
 const server = http.createServer(app);
@@ -45,6 +47,7 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.get("/", (req, res) => res.send("Workshop API is running ✅"));
 app.use("/api/auth", authRoutes);
+app.use("/api/institute", instituteRoutes);
 app.use("/api/workshops", workshopRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/resources", resourceRoutes);
@@ -64,6 +67,7 @@ io.use((socket, next) => {
   if (!token) return next(new Error("No token"));
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    if (!decoded.institute) return next(new Error("Please log in again"));
     socket.user = decoded;
     next();
   } catch (err) {
@@ -72,12 +76,19 @@ io.use((socket, next) => {
 });
 
 io.on("connection", (socket) => {
-  const { id } = socket.user;
+  const { id, institute } = socket.user;
   socket.join(`user:${id}`); // personal room for this user's notifications
+  socket.join(`institute:${institute}`); // live workshop list updates, per institute only
   console.log(`🔌 Socket connected: user ${id}`);
 
-  socket.on("workshop:watch", (workshopId) => {
-    socket.join(`workshop:${workshopId}`);
+  socket.on("workshop:watch", async (workshopId) => {
+    try {
+      // only allow watching workshops of the user's own institute
+      const ok = await Workshop.exists({ _id: workshopId, institute });
+      if (ok) socket.join(`workshop:${workshopId}`);
+    } catch (err) {
+      /* invalid id: ignore */
+    }
   });
 
   socket.on("workshop:unwatch", (workshopId) => {
@@ -136,7 +147,12 @@ async function checkUpcomingReminders() {
 
 const PORT = process.env.PORT || 5000;
 
-connectDB().then(() => {
+connectDB().then(async () => {
+  try {
+    await migrateToInstitutes();
+  } catch (err) {
+    console.error("Institute migration failed:", err.message);
+  }
   server.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
   setInterval(checkUpcomingReminders, 60 * 1000);
   checkUpcomingReminders();

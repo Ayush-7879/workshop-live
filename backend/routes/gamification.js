@@ -44,7 +44,7 @@ router.get("/me", auth, async (req, res) => {
 // Leaderboard: top students by points (visible to everyone logged in)
 router.get("/leaderboard", auth, async (req, res) => {
   try {
-    const topStudents = await User.find({ role: "student" })
+    const topStudents = await User.find({ role: "student", institute: req.user.institute })
       .select("name email points")
       .sort({ points: -1 })
       .limit(20);

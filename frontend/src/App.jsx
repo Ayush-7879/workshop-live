@@ -7,6 +7,7 @@ import Toast from "./components/Toast.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
+import RegisterInstitute from "./pages/RegisterInstitute.jsx";
 import Home from "./pages/Home.jsx";
 import AdminDashboard from "./pages/AdminDashboard.jsx";
 import StudentDashboard from "./pages/StudentDashboard.jsx";
@@ -19,7 +20,7 @@ export default function App() {
 const [toasts, setToasts] = useState([]);
 const location = useLocation();
 const { user } = useAuth();
-const isAuthPage = location.pathname === "/login" || location.pathname === "/register";
+const isAuthPage = location.pathname === "/login" || location.pathname === "/register" || location.pathname === "/register-institute";
 const showSidebar = !!user && !isAuthPage;
 
 const addToast = useCallback((notif) => {
@@ -42,6 +43,7 @@ return (
 <Route path="/" element={<Home />} />
 <Route path="/login" element={<Login />} />
 <Route path="/register" element={<Register />} />
+<Route path="/register-institute" element={<RegisterInstitute />} />
 <Route path="/privacy" element={<PrivacyPolicy />} />
 <Route
 path="/admin"

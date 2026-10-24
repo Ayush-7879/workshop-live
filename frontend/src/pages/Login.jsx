@@ -37,7 +37,7 @@ export default function Login() {
             <span className="dot">🔴</span> Instant live notifications
           </div>
           <div className="feature-item">
-            <span className="dot">⏰</span> Delay/cancel updates bina refresh
+            <span className="dot">⏰</span> Delay/cancel updates without a page refresh
           </div>
           <div className="feature-item">
             <span className="dot">🔗</span> One-click Zoom/Meet join

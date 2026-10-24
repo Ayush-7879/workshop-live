@@ -2,6 +2,7 @@ const express = require("express");
 const Resource = require("../models/Resource");
 const Workshop = require("../models/Workshop");
 const { auth, adminOnly } = require("../middleware/auth");
+const { scopedWorkshop } = require("../utils/scope");
 
 const router = express.Router();
 
@@ -15,7 +16,7 @@ router.post("/", auth, adminOnly, async (req, res) => {
     if (!["pdf", "video", "link"].includes(type)) {
       return res.status(400).json({ message: "Invalid resource type" });
     }
-    const workshop = await Workshop.findById(workshopId);
+    const workshop = await scopedWorkshop(req, workshopId);
     if (!workshop) return res.status(404).json({ message: "Workshop not found" });
 
     const resource = await Resource.create({
@@ -33,6 +34,7 @@ router.post("/", auth, adminOnly, async (req, res) => {
 
 // Get all resources for a workshop (any logged-in user; frontend hides for non-enrolled)
 router.get("/workshop/:workshopId", auth, async (req, res) => {
+  if (!(await scopedWorkshop(req, req.params.workshopId, "_id"))) return res.json([]);
   const resources = await Resource.find({ workshop: req.params.workshopId }).sort({ createdAt: -1 });
   res.json(resources);
 });
@@ -40,7 +42,9 @@ router.get("/workshop/:workshopId", auth, async (req, res) => {
 // ADMIN: delete a resource
 router.delete("/:id", auth, adminOnly, async (req, res) => {
   const resource = await Resource.findById(req.params.id);
-  if (!resource) return res.status(404).json({ message: "Resource not found" });
+  if (!resource || !(await scopedWorkshop(req, resource.workshop, "_id"))) {
+    return res.status(404).json({ message: "Resource not found" });
+  }
   await resource.deleteOne();
   res.json({ message: "Resource deleted" });
 });

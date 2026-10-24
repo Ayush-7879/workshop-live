@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 
 const courseSchema = new mongoose.Schema(
   {
+    institute: { type: mongoose.Schema.Types.ObjectId, ref: "Institute", index: true },
     name: { type: String, required: true, trim: true },
     description: { type: String, default: "", trim: true },
     price: { type: Number, required: true, min: 1 },

@@ -2,6 +2,7 @@ const express = require("express");
 const Feedback = require("../models/Feedback");
 const Workshop = require("../models/Workshop");
 const { auth, adminOnly } = require("../middleware/auth");
+const { scopedWorkshop } = require("../utils/scope");
 
 const router = express.Router();
 
@@ -12,7 +13,7 @@ router.post("/", auth, async (req, res) => {
     if (!workshopId || !rating || rating < 1 || rating > 5) {
       return res.status(400).json({ message: "workshopId and a rating (1-5) are required" });
     }
-    const workshop = await Workshop.findById(workshopId);
+    const workshop = await scopedWorkshop(req, workshopId);
     if (!workshop) return res.status(404).json({ message: "Workshop not found" });
 
     const attended = workshop.attendedStudents.some((a) => a.student.toString() === req.user.id);
@@ -33,12 +34,16 @@ router.post("/", auth, async (req, res) => {
 
 // STUDENT: check if I've already left feedback for a workshop
 router.get("/me/:workshopId", auth, async (req, res) => {
+  if (!(await scopedWorkshop(req, req.params.workshopId, "_id"))) return res.json(null);
   const entry = await Feedback.findOne({ workshop: req.params.workshopId, student: req.user.id });
   res.json(entry || null);
 });
 
 // ADMIN: see all feedback + average rating for a workshop
 router.get("/workshop/:workshopId", auth, adminOnly, async (req, res) => {
+  if (!(await scopedWorkshop(req, req.params.workshopId, "_id"))) {
+    return res.status(404).json({ message: "Workshop not found" });
+  }
   const entries = await Feedback.find({ workshop: req.params.workshopId })
     .populate("student", "name email")
     .sort({ createdAt: -1 });

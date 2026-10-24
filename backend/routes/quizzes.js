@@ -4,6 +4,7 @@ const QuizAttempt = require("../models/QuizAttempt");
 const Workshop = require("../models/Workshop");
 const User = require("../models/User");
 const { auth, adminOnly } = require("../middleware/auth");
+const { scopedWorkshop } = require("../utils/scope");
 
 const router = express.Router();
 
@@ -19,7 +20,7 @@ router.post("/", auth, adminOnly, async (req, res) => {
         return res.status(400).json({ message: "Each question needs text, at least 2 options and a correct answer" });
       }
     }
-    const workshop = await Workshop.findById(workshopId);
+    const workshop = await scopedWorkshop(req, workshopId);
     if (!workshop) return res.status(404).json({ message: "Workshop not found" });
 
     const quiz = await Quiz.create({ workshop: workshopId, title, questions, createdBy: req.user.id });
@@ -33,6 +34,7 @@ router.post("/", auth, adminOnly, async (req, res) => {
 // Students get questions WITHOUT correct answers (unless they already submitted, then see full review).
 router.get("/workshop/:workshopId", auth, async (req, res) => {
   try {
+    if (!(await scopedWorkshop(req, req.params.workshopId, "_id"))) return res.json([]);
     const quizzes = await Quiz.find({ workshop: req.params.workshopId }).sort({ createdAt: -1 });
     if (req.user.role === "admin") {
       return res.json(quizzes);
@@ -64,7 +66,9 @@ router.post("/:id/submit", auth, async (req, res) => {
   try {
     const { answers } = req.body; // array of selected option indexes, in question order
     const quiz = await Quiz.findById(req.params.id);
-    if (!quiz) return res.status(404).json({ message: "Quiz not found" });
+    if (!quiz || !(await scopedWorkshop(req, quiz.workshop, "_id"))) {
+      return res.status(404).json({ message: "Quiz not found" });
+    }
     if (!Array.isArray(answers) || answers.length !== quiz.questions.length) {
       return res.status(400).json({ message: "Please answer all questions" });
     }
@@ -102,6 +106,10 @@ router.post("/:id/submit", auth, async (req, res) => {
 
 // ADMIN: view all results for a quiz
 router.get("/:id/results", auth, adminOnly, async (req, res) => {
+  const quizForResults = await Quiz.findById(req.params.id).select("workshop");
+  if (!quizForResults || !(await scopedWorkshop(req, quizForResults.workshop, "_id"))) {
+    return res.status(404).json({ message: "Quiz not found" });
+  }
   const attempts = await QuizAttempt.find({ quiz: req.params.id })
     .populate("student", "name email")
     .sort({ score: -1 });
@@ -111,7 +119,9 @@ router.get("/:id/results", auth, adminOnly, async (req, res) => {
 // ADMIN: delete a quiz (and its attempts)
 router.delete("/:id", auth, adminOnly, async (req, res) => {
   const quiz = await Quiz.findById(req.params.id);
-  if (!quiz) return res.status(404).json({ message: "Quiz not found" });
+  if (!quiz || !(await scopedWorkshop(req, quiz.workshop, "_id"))) {
+    return res.status(404).json({ message: "Quiz not found" });
+  }
   await QuizAttempt.deleteMany({ quiz: quiz._id });
   await quiz.deleteOne();
   res.json({ message: "Quiz deleted" });

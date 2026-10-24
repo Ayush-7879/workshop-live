@@ -38,6 +38,9 @@ export default function Navbar({ onToast }) {
             <Link className="nav-link" to="/register">
               Register
             </Link>
+            <Link className="nav-link" to="/register-institute">
+              For institutes
+            </Link>
           </>
         )}
       </div>

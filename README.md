@@ -76,7 +76,7 @@ npm run dev
 Opens on `http://localhost:5173`.
 
 ### 4. Try it
-1. Register an admin (enter your `ADMIN_INVITE_CODE`), and a student in a private window.
+1. List the institute codes with `npm run institutes`. Register an admin with the admin code, and a student (private window) with the student code.
 2. Admin creates a workshop. Student asks to join. Admin accepts.
 3. Admin clicks **Go Live**, **Delay** or **Cancel**. The student sees the update instantly.
 4. Student marks attendance while live. Admin marks the workshop completed. The certificate appears.
@@ -88,10 +88,29 @@ Opens on `http://localhost:5173`.
 | `MONGO_URI` | MongoDB connection string |
 | `JWT_SECRET` | Long random secret for signing tokens |
 | `CLIENT_URL` | Frontend URL allowed by CORS and Socket.io |
-| `ADMIN_INVITE_CODE` | Private code required to register an admin (set it on Render too) |
+| `ADMIN_INVITE_CODE` | Admin code of the default institute (used once, when existing data is migrated) |
+| `DEFAULT_INSTITUTE_NAME`, `DEFAULT_STUDENT_CODE` | Optional: name and student code of the default institute |
 | `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET` | Razorpay keys (test keys for development) |
 
 Never commit your `.env` file.
+
+## Institutes (multi-tenancy)
+Every user, workshop and course belongs to one institute, and each institute only sees its own data.
+Each institute has a **student code** and an **admin code**. People enter the code when they register,
+and the code decides their institute and role.
+
+**How an institute gets started**
+1. The institute opens **For institutes** (`/register-institute`) and registers its name and its first admin.
+2. In the admin dashboard, the **Institute codes** tab shows the student code (and admin code). Codes can be copied or regenerated.
+3. The admin shares the student code. Students choose **Student** on the register page and enter it.
+
+Platform owner tools (list institutes and codes, or create one by hand):
+```bash
+cd backend
+npm run institutes
+npm run institutes -- create "Some College"
+```
+On first start after upgrading, existing users, workshops and courses are moved into a default institute automatically.
 
 ## Deployment
 See `DEPLOYMENT_GUIDE.md` for the step-by-step guide (MongoDB Atlas, Render, Vercel; all free tier).

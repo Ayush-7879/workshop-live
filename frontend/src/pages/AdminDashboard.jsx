@@ -6,6 +6,7 @@ import AdminMaterials from "../components/AdminMaterials.jsx";
 import LeaderboardView from "../components/LeaderboardView.jsx";
 import StudentDirectory from "../components/StudentDirectory.jsx";
 import CourseManager from "../components/CourseManager.jsx";
+import InstituteCodes from "../components/InstituteCodes.jsx";
 
 const STATUS_LABEL = {
   scheduled: "Scheduled",
@@ -188,6 +189,9 @@ export default function AdminDashboard() {
           <button className={view === "leaderboard" ? "active" : ""} onClick={() => changeView("leaderboard")}>
             🏆 Leaderboard
           </button>
+          <button className={view === "institute" ? "active" : ""} onClick={() => changeView("institute")}>
+            🏫 Institute codes
+          </button>
         </div>
         {tabsScrollable && (
           <span className="tabs-scroll-hint" aria-hidden="true">
@@ -199,6 +203,7 @@ export default function AdminDashboard() {
       {view === "students" && <StudentDirectory />}
       {view === "courses" && <CourseManager />}
       {view === "leaderboard" && <LeaderboardView />}
+      {view === "institute" && <InstituteCodes />}
 
       {view === "workshops" && (
       <>

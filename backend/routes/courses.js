@@ -19,6 +19,7 @@ router.post("/", auth, adminOnly, async (req, res) => {
       description: description || "",
       price: Number(price),
       createdBy: req.user.id,
+      institute: req.user.institute,
     });
     res.status(201).json(course);
   } catch (err) {
@@ -29,7 +30,7 @@ router.post("/", auth, adminOnly, async (req, res) => {
 // GET all courses (any logged-in user). Students also see whether they've already purchased each one.
 router.get("/", auth, async (req, res) => {
   try {
-    const courses = await Course.find().sort({ createdAt: -1 });
+    const courses = await Course.find({ institute: req.user.institute }).sort({ createdAt: -1 });
     if (req.user.role === "admin") return res.json(courses.map((c) => ({ ...c.toObject(), purchased: undefined })));
 
     const paidCourseIds = new Set(
@@ -50,7 +51,7 @@ router.get("/me/purchased", auth, async (req, res) => {
 
 // ADMIN: delete a course
 router.delete("/:id", auth, adminOnly, async (req, res) => {
-  const course = await Course.findById(req.params.id);
+  const course = await Course.findOne({ _id: req.params.id, institute: req.user.institute });
   if (!course) return res.status(404).json({ message: "Course not found" });
   await course.deleteOne();
   res.json({ message: "Course deleted" });
@@ -59,7 +60,7 @@ router.delete("/:id", auth, adminOnly, async (req, res) => {
 // STUDENT: create a Razorpay order to buy a course
 router.post("/:id/create-order", auth, async (req, res) => {
   try {
-    const course = await Course.findById(req.params.id);
+    const course = await Course.findOne({ _id: req.params.id, institute: req.user.institute });
     if (!course) return res.status(404).json({ message: "Course not found" });
 
     const alreadyPaid = await Payment.findOne({ course: course._id, student: req.user.id, status: "paid" });
@@ -112,7 +113,7 @@ router.post("/:id/verify", auth, async (req, res) => {
     );
     if (!payment) return res.status(404).json({ message: "Payment record not found" });
 
-    const course = await Course.findById(req.params.id);
+    const course = await Course.findOne({ _id: req.params.id, institute: req.user.institute });
     const io = req.app.get("io");
     if (io && course) {
       const notif = await Notification.create({

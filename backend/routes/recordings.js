@@ -2,6 +2,7 @@ const express = require("express");
 const Recording = require("../models/Recording");
 const Workshop = require("../models/Workshop");
 const { auth, adminOnly } = require("../middleware/auth");
+const { scopedWorkshop } = require("../utils/scope");
 
 const router = express.Router();
 
@@ -12,7 +13,7 @@ router.post("/", auth, adminOnly, async (req, res) => {
     if (!workshopId || !title || !videoUrl) {
       return res.status(400).json({ message: "workshopId, title and videoUrl are required" });
     }
-    const workshop = await Workshop.findById(workshopId);
+    const workshop = await scopedWorkshop(req, workshopId);
     if (!workshop) return res.status(404).json({ message: "Workshop not found" });
 
     const cleanChapters = Array.isArray(chapters)
@@ -34,6 +35,7 @@ router.post("/", auth, adminOnly, async (req, res) => {
 
 // Get the recording for one workshop (enrolled students + admin)
 router.get("/workshop/:workshopId", auth, async (req, res) => {
+  if (!(await scopedWorkshop(req, req.params.workshopId, "_id"))) return res.json(null);
   const recording = await Recording.findOne({ workshop: req.params.workshopId });
   res.json(recording || null);
 });
@@ -44,9 +46,9 @@ router.get("/", auth, async (req, res) => {
   try {
     const q = (req.query.q || "").trim().toLowerCase();
 
-    let workshopFilter = {};
+    let workshopFilter = { institute: req.user.institute };
     if (req.user.role !== "admin") {
-      workshopFilter = { enrolledStudents: req.user.id };
+      workshopFilter = { institute: req.user.institute, enrolledStudents: req.user.id };
     }
     const workshops = await Workshop.find(workshopFilter).select("title currentAt status");
     const workshopIds = workshops.map((w) => w._id);
@@ -82,7 +84,9 @@ router.get("/", auth, async (req, res) => {
 // ADMIN: delete a recording
 router.delete("/:id", auth, adminOnly, async (req, res) => {
   const recording = await Recording.findById(req.params.id);
-  if (!recording) return res.status(404).json({ message: "Recording not found" });
+  if (!recording || !(await scopedWorkshop(req, recording.workshop, "_id"))) {
+    return res.status(404).json({ message: "Recording not found" });
+  }
   await recording.deleteOne();
   res.json({ message: "Recording deleted" });
 });

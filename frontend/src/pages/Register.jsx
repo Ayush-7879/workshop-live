@@ -9,7 +9,7 @@ export default function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("student");
-  const [adminCode, setAdminCode] = useState("");
+  const [instituteCode, setInstituteCode] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -18,7 +18,7 @@ export default function Register() {
     setError("");
     setLoading(true);
     try {
-      const user = await register(name, email, password, role, adminCode);
+      const user = await register(name, email, password, role, instituteCode);
       navigate(user.role === "admin" ? "/admin" : "/student");
     } catch (err) {
       setError(err.response?.data?.message || "Registration failed");
@@ -64,24 +64,26 @@ export default function Register() {
               <option value="student">Student</option>
               <option value="admin">Admin (Workshop organizer)</option>
             </select>
-            {role === "admin" && (
-              <>
-                <label>Admin invite code</label>
-                <input
-                  type="password"
-                  value={adminCode}
-                  onChange={(e) => setAdminCode(e.target.value)}
-                  autoComplete="off"
-                  required
-                />
-              </>
-            )}
+            <label>{role === "admin" ? "Institute admin code" : "Institute code"}</label>
+            <input
+              value={instituteCode}
+              onChange={(e) => setInstituteCode(e.target.value)}
+              placeholder={role === "admin" ? "ADM-XXXXXXXXXXXX" : "STU-XXXXXXXXXXXX"}
+              autoComplete="off"
+              required
+            />
+            <p className="form-sub" style={{ marginTop: 4 }}>
+              Get this code from your institute organizer.
+            </p>
             <button className="btn btn-primary" style={{ width: "100%" }} disabled={loading}>
               {loading ? "Creating account..." : "Register"}
             </button>
           </form>
           <p className="switch-link">
             Already have an account? <Link to="/login">Login here</Link>
+          </p>
+          <p className="switch-link">
+            Setting up a new institute? <Link to="/register-institute">Register your institute</Link>
           </p>
         </div>
       </div>

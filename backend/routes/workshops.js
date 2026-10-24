@@ -131,13 +131,13 @@ async function notifyStudents(io, workshop, studentIds, type, message) {
 
 // GET all workshops (any logged-in user)
 router.get("/", auth, async (req, res) => {
-  const workshops = await Workshop.find().sort({ currentAt: 1 }).populate(POPULATE_FIELDS);
+  const workshops = await Workshop.find({ institute: req.user.institute }).sort({ currentAt: 1 }).populate(POPULATE_FIELDS);
   res.json(workshops);
 });
 
 // GET single workshop
 router.get("/:id", auth, async (req, res) => {
-  const workshop = await Workshop.findById(req.params.id).populate(POPULATE_FIELDS);
+  const workshop = await Workshop.findOne({ _id: req.params.id, institute: req.user.institute }).populate(POPULATE_FIELDS);
   if (!workshop) return res.status(404).json({ message: "Workshop not found" });
   res.json(workshop);
 });
@@ -161,6 +161,7 @@ router.post("/", auth, adminOnly, async (req, res) => {
         mapLink: location?.mapLink || "",
       },
       createdBy: req.user.id,
+      institute: req.user.institute,
     });
     res.status(201).json(workshop);
   } catch (err) {
@@ -171,7 +172,7 @@ router.post("/", auth, adminOnly, async (req, res) => {
 // UPDATE workshop details (admin only) - title/description/meetLink/scheduledAt
 router.put("/:id", auth, adminOnly, async (req, res) => {
   try {
-    const workshop = await Workshop.findById(req.params.id);
+    const workshop = await Workshop.findOne({ _id: req.params.id, institute: req.user.institute });
     if (!workshop) return res.status(404).json({ message: "Workshop not found" });
     const { title, description, meetLink, scheduledAt, mode, location } = req.body;
     if (title !== undefined) workshop.title = title;
@@ -195,7 +196,7 @@ router.put("/:id", auth, adminOnly, async (req, res) => {
 // STUDENT: request to join a workshop (goes into pending list, admin must approve)
 router.post("/:id/join", auth, async (req, res) => {
   try {
-    const workshop = await Workshop.findById(req.params.id);
+    const workshop = await Workshop.findOne({ _id: req.params.id, institute: req.user.institute });
     if (!workshop) return res.status(404).json({ message: "Workshop not found" });
 
     const alreadyEnrolled = workshop.enrolledStudents.some((id) => id.toString() === req.user.id);
@@ -221,7 +222,7 @@ router.post("/:id/join", auth, async (req, res) => {
       `${req.user.name} requested to join "${workshop.title}".`
     );
 
-    io.emit("workshop:list-update", { _id: workshop._id });
+    io.to(`institute:${workshop.institute}`).emit("workshop:list-update", { _id: workshop._id });
 
     const updated = await Workshop.findById(workshop._id).populate(POPULATE_FIELDS);
     res.json(updated);
@@ -237,7 +238,7 @@ router.patch("/:id/requests/:studentId", auth, adminOnly, async (req, res) => {
     if (!["accept", "reject"].includes(action)) {
       return res.status(400).json({ message: "Invalid action" });
     }
-    const workshop = await Workshop.findById(req.params.id);
+    const workshop = await Workshop.findOne({ _id: req.params.id, institute: req.user.institute });
     if (!workshop) return res.status(404).json({ message: "Workshop not found" });
 
     const studentId = req.params.studentId;
@@ -274,7 +275,7 @@ router.patch("/:id/requests/:studentId", auth, adminOnly, async (req, res) => {
       );
     }
 
-    io.emit("workshop:list-update", { _id: workshop._id });
+    io.to(`institute:${workshop.institute}`).emit("workshop:list-update", { _id: workshop._id });
 
     const updated = await Workshop.findById(workshop._id).populate(POPULATE_FIELDS);
     res.json(updated);
@@ -286,7 +287,7 @@ router.patch("/:id/requests/:studentId", auth, adminOnly, async (req, res) => {
 // STUDENT: mark attendance (called when they click "Join Live")
 router.post("/:id/attend", auth, async (req, res) => {
   try {
-    const workshop = await Workshop.findById(req.params.id);
+    const workshop = await Workshop.findOne({ _id: req.params.id, institute: req.user.institute });
     if (!workshop) return res.status(404).json({ message: "Workshop not found" });
 
     const isEnrolled = workshop.enrolledStudents.some((id) => id.toString() === req.user.id);
@@ -303,7 +304,7 @@ router.post("/:id/attend", auth, async (req, res) => {
       await workshop.save();
       await User.findByIdAndUpdate(req.user.id, { $inc: { points: ATTEND_POINTS } });
       const io = req.app.get("io");
-      io.emit("workshop:list-update", { _id: workshop._id });
+      io.to(`institute:${workshop.institute}`).emit("workshop:list-update", { _id: workshop._id });
     }
 
     const updated = await Workshop.findById(workshop._id).populate(POPULATE_FIELDS);
@@ -321,7 +322,7 @@ router.patch("/:id/status", auth, adminOnly, async (req, res) => {
     if (!allowed.includes(status)) {
       return res.status(400).json({ message: "Invalid status" });
     }
-    const workshop = await Workshop.findById(req.params.id);
+    const workshop = await Workshop.findOne({ _id: req.params.id, institute: req.user.institute });
     if (!workshop) return res.status(404).json({ message: "Workshop not found" });
 
     workshop.status = status;
@@ -375,7 +376,7 @@ router.patch("/:id/status", auth, adminOnly, async (req, res) => {
     }
 
     // broadcast to everyone so workshop lists refresh live (public room)
-    io.emit("workshop:list-update", { _id: workshop._id });
+    io.to(`institute:${workshop.institute}`).emit("workshop:list-update", { _id: workshop._id });
 
     const updated = await Workshop.findById(workshop._id).populate(POPULATE_FIELDS);
     res.json(updated);
@@ -387,11 +388,11 @@ router.patch("/:id/status", auth, adminOnly, async (req, res) => {
 // DELETE workshop (admin only)
 router.delete("/:id", auth, adminOnly, async (req, res) => {
   try {
-    const workshop = await Workshop.findById(req.params.id);
+    const workshop = await Workshop.findOne({ _id: req.params.id, institute: req.user.institute });
     if (!workshop) return res.status(404).json({ message: "Workshop not found" });
     await workshop.deleteOne();
     const io = req.app.get("io");
-    io.emit("workshop:list-update", { _id: req.params.id, deleted: true });
+    io.to(`institute:${workshop.institute}`).emit("workshop:list-update", { _id: req.params.id, deleted: true });
     res.json({ message: "Workshop deleted successfully" });
   } catch (err) {
     res.status(500).json({ message: "Server error", error: err.message });

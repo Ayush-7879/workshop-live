@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 
 const workshopSchema = new mongoose.Schema(
   {
+    institute: { type: mongoose.Schema.Types.ObjectId, ref: "Institute", index: true },
     title: { type: String, required: true, trim: true },
     description: { type: String, default: "" },
     scheduledAt: { type: Date, required: true }, // original planned date/time

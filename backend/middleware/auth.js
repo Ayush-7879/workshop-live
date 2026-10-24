@@ -8,7 +8,11 @@ function auth(req, res, next) {
   const token = header.split(" ")[1];
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded; // { id, role, name }
+    if (!decoded.institute) {
+      // token from before institutes existed
+      return res.status(401).json({ message: "Please log in again" });
+    }
+    req.user = decoded; // { id, role, name, institute }
     next();
   } catch (err) {
     return res.status(401).json({ message: "Invalid or expired token" });

@@ -48,7 +48,7 @@ router.get("/me", auth, async (req, res) => {
 // points, workshops joined/attended, certificates earned)
 router.get("/students", auth, adminOnly, async (req, res) => {
   try {
-    const students = await User.find({ role: "student" })
+    const students = await User.find({ role: "student", institute: req.user.institute })
       .select("-password")
       .sort({ createdAt: -1 });
 
@@ -86,7 +86,7 @@ router.get("/students", auth, adminOnly, async (req, res) => {
 // ADMIN: single student's full detail, including which workshops they attended
 router.get("/students/:id", auth, adminOnly, async (req, res) => {
   try {
-    const student = await User.findOne({ _id: req.params.id, role: "student" }).select("-password");
+    const student = await User.findOne({ _id: req.params.id, role: "student", institute: req.user.institute }).select("-password");
     if (!student) return res.status(404).json({ message: "Student not found" });
 
     const [attendedWorkshops, enrolledWorkshops, certificates] = await Promise.all([

@@ -3,6 +3,7 @@ const path = require("path");
 const express = require("express");
 const http = require("http");
 const cors = require("cors");
+const helmet = require("helmet");
 const jwt = require("jsonwebtoken");
 const { Server } = require("socket.io");
 
@@ -34,8 +35,12 @@ const io = new Server(server, {
 
 app.set("io", io);
 
+// Render sits behind a proxy; needed so rate limiting sees the real client IP
+app.set("trust proxy", 1);
+// crossOriginResourcePolicy off so the Vercel frontend can load files from /uploads
+app.use(helmet({ crossOriginResourcePolicy: false }));
 app.use(cors({ origin: CLIENT_URL }));
-app.use(express.json());
+app.use(express.json({ limit: "1mb" }));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.get("/", (req, res) => res.send("Workshop API is running ✅"));

@@ -9,6 +9,7 @@ export default function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("student");
+  const [adminCode, setAdminCode] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -17,7 +18,7 @@ export default function Register() {
     setError("");
     setLoading(true);
     try {
-      const user = await register(name, email, password, role);
+      const user = await register(name, email, password, role, adminCode);
       navigate(user.role === "admin" ? "/admin" : "/student");
     } catch (err) {
       setError(err.response?.data?.message || "Registration failed");
@@ -42,7 +43,7 @@ export default function Register() {
             <span className="dot">🙋</span> Student: join workshops and get live updates
           </div>
           <div className="feature-item">
-            <span className="dot">🔔</span> Har status change ka notification
+            <span className="dot">🔔</span> A notification for every status change
           </div>
         </div>
       </div>
@@ -63,6 +64,18 @@ export default function Register() {
               <option value="student">Student</option>
               <option value="admin">Admin (Workshop organizer)</option>
             </select>
+            {role === "admin" && (
+              <>
+                <label>Admin invite code</label>
+                <input
+                  type="password"
+                  value={adminCode}
+                  onChange={(e) => setAdminCode(e.target.value)}
+                  autoComplete="off"
+                  required
+                />
+              </>
+            )}
             <button className="btn btn-primary" style={{ width: "100%" }} disabled={loading}>
               {loading ? "Creating account..." : "Register"}
             </button>

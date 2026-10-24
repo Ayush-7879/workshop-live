@@ -1,8 +1,26 @@
+const crypto = require("crypto");
 const express = require("express");
 const jwt = require("jsonwebtoken");
+const rateLimit = require("express-rate-limit");
 const User = require("../models/User");
 
 const router = express.Router();
+
+// Max 20 login/register attempts per IP every 15 minutes
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: "Too many attempts. Please try again in 15 minutes." },
+});
+router.use(authLimiter);
+
+function safeEqual(a, b) {
+  const ha = crypto.createHash("sha256").update(a).digest();
+  const hb = crypto.createHash("sha256").update(b).digest();
+  return crypto.timingSafeEqual(ha, hb);
+}
 
 function makeToken(user) {
   return jwt.sign(
@@ -15,9 +33,20 @@ function makeToken(user) {
 // Register (role: admin or student)
 router.post("/register", async (req, res) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email, password, role, adminCode } = req.body;
     if (!name || !email || !password) {
       return res.status(400).json({ message: "Please fill all fields (name, email, password)" });
+    }
+    if (typeof email !== "string" || typeof password !== "string" || typeof name !== "string") {
+      return res.status(400).json({ message: "Invalid input" });
+    }
+    // Admin accounts need the invite code from the ADMIN_INVITE_CODE env var.
+    // If the variable is not set, nobody can register as admin.
+    if (role === "admin") {
+      const expected = process.env.ADMIN_INVITE_CODE;
+      if (!expected || typeof adminCode !== "string" || !safeEqual(adminCode, expected)) {
+        return res.status(403).json({ message: "Invalid admin invite code" });
+      }
     }
     const existing = await User.findOne({ email: email.toLowerCase() });
     if (existing) {
@@ -43,7 +72,10 @@ router.post("/register", async (req, res) => {
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
-    const user = await User.findOne({ email: (email || "").toLowerCase() });
+    if (typeof email !== "string" || typeof password !== "string") {
+      return res.status(400).json({ message: "Invalid email or password" });
+    }
+    const user = await User.findOne({ email: email.toLowerCase() });
     if (!user) return res.status(400).json({ message: "Invalid email or password" });
     const match = await user.comparePassword(password);
     if (!match) return res.status(400).json({ message: "Invalid email or password" });

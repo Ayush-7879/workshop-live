@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 
+// A quiz belongs to a workshop. correctIndex is never sent to students before they submit.
 const questionSchema = new mongoose.Schema(
   {
     text: { type: String, required: true },

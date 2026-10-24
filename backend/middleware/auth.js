@@ -1,5 +1,7 @@
 const jwt = require("jsonwebtoken");
 
+// Verifies the Bearer token and exposes the caller as req.user ({ id, role, name, institute }).
+// Every institute-scoped query reads req.user.institute, which comes from the signed token and not from the request body.
 function auth(req, res, next) {
   const header = req.headers.authorization;
   if (!header || !header.startsWith("Bearer ")) {
@@ -19,6 +21,7 @@ function auth(req, res, next) {
   }
 }
 
+// Use after auth() on routes only institute admins may call.
 function adminOnly(req, res, next) {
   if (req.user.role !== "admin") {
     return res.status(403).json({ message: "Admin access only" });

@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 
+// A workshop and its live state. Everything is scoped by `institute`, so one institute never sees another's workshops.
 const workshopSchema = new mongoose.Schema(
   {
     institute: { type: mongoose.Schema.Types.ObjectId, ref: "Institute", index: true },
@@ -28,6 +29,7 @@ const workshopSchema = new mongoose.Schema(
         joinedAt: { type: Date, default: Date.now },
       },
     ],
+    // set once the "starts in 30 minutes" reminder has been sent, so it is not repeated
     reminderSent: { type: Boolean, default: false }, // "starting soon" reminder already sent
   },
   { timestamps: true }

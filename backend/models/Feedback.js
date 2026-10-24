@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 
+// One rating and comment per student per workshop (enforced by the unique index below).
 const feedbackSchema = new mongoose.Schema(
   {
     workshop: { type: mongoose.Schema.Types.ObjectId, ref: "Workshop", required: true },

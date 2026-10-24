@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 
+// Razorpay order and payment record for a course purchase. `status` moves created -> paid or failed.
 const paymentSchema = new mongoose.Schema(
   {
     course: { type: mongoose.Schema.Types.ObjectId, ref: "Course", required: true },

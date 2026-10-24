@@ -6,6 +6,7 @@ const crypto = require("crypto");
 const instituteSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, trim: true, unique: true },
+    // Codes are stored as generated (STU-... / ADM-...) and compared exactly at registration.
     studentCode: { type: String, required: true, unique: true, trim: true },
     adminCode: { type: String, required: true, unique: true, trim: true },
   },

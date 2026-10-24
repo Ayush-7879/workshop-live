@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 
+// The session recording of a workshop (one per workshop) with optional chapter timestamps.
 const recordingSchema = new mongoose.Schema(
   {
     workshop: { type: mongoose.Schema.Types.ObjectId, ref: "Workshop", required: true, unique: true },

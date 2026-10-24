@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 
+// Learning material attached to a workshop: a PDF, a video or a link.
 const resourceSchema = new mongoose.Schema(
   {
     workshop: { type: mongoose.Schema.Types.ObjectId, ref: "Workshop", required: true },

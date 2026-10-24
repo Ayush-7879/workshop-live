@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const crypto = require("crypto");
 
+// Proof of completion. Issued automatically when a workshop is completed and the student's attendance is high enough; `code` is what the public verify endpoint looks up.
 const certificateSchema = new mongoose.Schema(
   {
     student: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },

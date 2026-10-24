@@ -31,6 +31,8 @@ const { errorHandler } = require("./utils/errors");
 const app = express();
 const server = http.createServer(app);
 
+// Origin allowed by CORS and Socket.io. Set CLIENT_URL to the exact frontend URL in production;
+// the "*" fallback is only meant for quick local runs.
 const CLIENT_URL = process.env.CLIENT_URL || "*";
 
 const io = new Server(server, {
@@ -47,6 +49,7 @@ app.use(cors({ origin: CLIENT_URL }));
 app.use(express.json({ limit: "1mb" }));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
+// Health check used by Render and for a quick manual test
 app.get("/", (req, res) => res.send("Workshop API is running ✅"));
 app.use("/api/auth", authRoutes);
 app.use("/api/institute", instituteRoutes);
@@ -63,6 +66,7 @@ app.use("/api/courses", courseRoutes);
 app.use("/api/feedback", feedbackRoutes);
 app.use("/api/recordings", recordingRoutes);
 
+// Must come after all routes: turns thrown and rejected errors into JSON responses
 app.use(errorHandler);
 
 // Socket.io auth: client sends JWT token on connection
@@ -151,6 +155,8 @@ async function checkUpcomingReminders() {
 
 const PORT = process.env.PORT || 5000;
 
+// Start order: connect to the database, move any pre-institute data into the default institute,
+// then start listening and schedule the reminder job.
 connectDB().then(async () => {
   try {
     await migrateToInstitutes();

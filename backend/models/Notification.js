@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 
+// Stored copy of every real-time notification, so students can see their history after a refresh.
 const notificationSchema = new mongoose.Schema(
   {
     workshop: { type: mongoose.Schema.Types.ObjectId, ref: "Workshop" }, // absent for non-workshop notifications (e.g. course purchases)

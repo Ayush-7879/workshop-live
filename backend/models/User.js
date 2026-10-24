@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 
+// An account. `institute` ties the user to one institute, and `role` is decided at registration by which institute code was used.
 const userSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, trim: true },
@@ -18,6 +19,7 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// Hash the password whenever it is set or changed, never store it in plain text.
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
   this.password = await bcrypt.hash(this.password, 10);

@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 
+// A paid course an admin offers inside their institute (bought through Razorpay).
 const courseSchema = new mongoose.Schema(
   {
     institute: { type: mongoose.Schema.Types.ObjectId, ref: "Institute", index: true },

@@ -156,6 +156,10 @@ The frontend has no automated tests. `npm run build` in `frontend` checks that i
 
 See [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) for MongoDB Atlas, Render and Vercel.
 
+## License
+
+All rights reserved. The code is public for review only. See [LICENSE](LICENSE).
+
 ## Known limitations and future work
 
 - Uploaded files live on the backend disk, which the Render free plan does not persist. Move them to object storage such as S3 or Cloudinary.

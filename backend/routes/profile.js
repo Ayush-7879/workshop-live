@@ -1,4 +1,5 @@
 const express = require("express");
+const { errorDetail } = require("../utils/errors");
 const User = require("../models/User");
 const Workshop = require("../models/Workshop");
 const Certificate = require("../models/Certificate");
@@ -40,7 +41,7 @@ router.get("/me", auth, async (req, res) => {
       completion: computeCompletion(user),
     });
   } catch (err) {
-    res.status(500).json({ message: "Server error", error: err.message });
+    res.status(500).json({ message: "Server error", error: errorDetail(err) });
   }
 });
 
@@ -79,7 +80,7 @@ router.get("/students", auth, adminOnly, async (req, res) => {
 
     res.json(enriched);
   } catch (err) {
-    res.status(500).json({ message: "Server error", error: err.message });
+    res.status(500).json({ message: "Server error", error: errorDetail(err) });
   }
 });
 
@@ -103,7 +104,7 @@ router.get("/students/:id", auth, adminOnly, async (req, res) => {
       completion: computeCompletion(student),
     });
   } catch (err) {
-    res.status(500).json({ message: "Server error", error: err.message });
+    res.status(500).json({ message: "Server error", error: errorDetail(err) });
   }
 });
 
@@ -123,7 +124,7 @@ router.put("/me", auth, async (req, res) => {
     const user = await User.findByIdAndUpdate(req.user.id, update, { new: true }).select("-password");
     res.json({ user, completion: computeCompletion(user) });
   } catch (err) {
-    res.status(500).json({ message: "Server error", error: err.message });
+    res.status(500).json({ message: "Server error", error: errorDetail(err) });
   }
 });
 

@@ -1,4 +1,5 @@
 const express = require("express");
+const { errorDetail } = require("../utils/errors");
 const User = require("../models/User");
 const Workshop = require("../models/Workshop");
 const QuizAttempt = require("../models/QuizAttempt");
@@ -37,7 +38,7 @@ router.get("/me", auth, async (req, res) => {
     const profile = await buildProfile(req.user.id);
     res.json(profile);
   } catch (err) {
-    res.status(500).json({ message: "Server error", error: err.message });
+    res.status(500).json({ message: "Server error", error: errorDetail(err) });
   }
 });
 
@@ -68,7 +69,7 @@ router.get("/leaderboard", auth, async (req, res) => {
 
     res.json(withBadges);
   } catch (err) {
-    res.status(500).json({ message: "Server error", error: err.message });
+    res.status(500).json({ message: "Server error", error: errorDetail(err) });
   }
 });
 

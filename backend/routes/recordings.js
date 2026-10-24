@@ -1,7 +1,9 @@
 const express = require("express");
+const { errorDetail } = require("../utils/errors");
 const Recording = require("../models/Recording");
 const Workshop = require("../models/Workshop");
 const { auth, adminOnly } = require("../middleware/auth");
+const { isSafeUrl } = require("../utils/validate");
 const { scopedWorkshop } = require("../utils/scope");
 
 const router = express.Router();
@@ -12,6 +14,9 @@ router.post("/", auth, adminOnly, async (req, res) => {
     const { workshopId, title, videoUrl, chapters } = req.body;
     if (!workshopId || !title || !videoUrl) {
       return res.status(400).json({ message: "workshopId, title and videoUrl are required" });
+    }
+    if (!isSafeUrl(videoUrl)) {
+      return res.status(400).json({ message: "Video link must start with http:// or https://" });
     }
     const workshop = await scopedWorkshop(req, workshopId);
     if (!workshop) return res.status(404).json({ message: "Workshop not found" });
@@ -29,7 +34,7 @@ router.post("/", auth, adminOnly, async (req, res) => {
     );
     res.status(201).json(recording);
   } catch (err) {
-    res.status(500).json({ message: "Server error", error: err.message });
+    res.status(500).json({ message: "Server error", error: errorDetail(err) });
   }
 });
 
@@ -77,7 +82,7 @@ router.get("/", auth, async (req, res) => {
 
     res.json(filtered);
   } catch (err) {
-    res.status(500).json({ message: "Server error", error: err.message });
+    res.status(500).json({ message: "Server error", error: errorDetail(err) });
   }
 });
 

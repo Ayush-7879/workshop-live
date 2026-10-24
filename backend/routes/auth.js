@@ -1,4 +1,5 @@
 const express = require("express");
+const { errorDetail } = require("../utils/errors");
 const jwt = require("jsonwebtoken");
 const rateLimit = require("express-rate-limit");
 const User = require("../models/User");
@@ -9,7 +10,7 @@ const router = express.Router();
 // Max 20 login/register attempts per IP every 15 minutes
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 20,
+  max: Number(process.env.AUTH_RATE_LIMIT_MAX) || 20,
   standardHeaders: true,
   legacyHeaders: false,
   message: { message: "Too many attempts. Please try again in 15 minutes." },
@@ -43,6 +44,9 @@ router.post("/register", async (req, res) => {
     if (typeof email !== "string" || typeof password !== "string" || typeof name !== "string") {
       return res.status(400).json({ message: "Invalid input" });
     }
+    if (password.length < 6) {
+      return res.status(400).json({ message: "Password must be at least 6 characters" });
+    }
     // Everyone joins an institute with its code. The student code makes a student,
     // the admin code makes an admin. The role is decided by the code, never by the client.
     if (typeof instituteCode !== "string" || !instituteCode.trim()) {
@@ -73,7 +77,7 @@ router.post("/register", async (req, res) => {
       user: { id: user._id, name: user.name, email: user.email, role: user.role },
     });
   } catch (err) {
-    res.status(500).json({ message: "Server error", error: err.message });
+    res.status(500).json({ message: "Server error", error: errorDetail(err) });
   }
 });
 
@@ -142,7 +146,7 @@ router.post("/login", async (req, res) => {
       user: { id: user._id, name: user.name, email: user.email, role: user.role },
     });
   } catch (err) {
-    res.status(500).json({ message: "Server error", error: err.message });
+    res.status(500).json({ message: "Server error", error: errorDetail(err) });
   }
 });
 

@@ -1,4 +1,5 @@
 require("dotenv").config();
+require("express-async-errors"); // forwards rejected async handlers to the error middleware
 const path = require("path");
 const express = require("express");
 const http = require("http");
@@ -25,6 +26,7 @@ const recordingRoutes = require("./routes/recordings");
 const Workshop = require("./models/Workshop");
 const Notification = require("./models/Notification");
 const { migrateToInstitutes } = require("./utils/migrateInstitutes");
+const { errorHandler } = require("./utils/errors");
 
 const app = express();
 const server = http.createServer(app);
@@ -60,6 +62,8 @@ app.use("/api/profile", profileRoutes);
 app.use("/api/courses", courseRoutes);
 app.use("/api/feedback", feedbackRoutes);
 app.use("/api/recordings", recordingRoutes);
+
+app.use(errorHandler);
 
 // Socket.io auth: client sends JWT token on connection
 io.use((socket, next) => {

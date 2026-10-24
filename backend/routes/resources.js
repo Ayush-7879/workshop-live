@@ -1,7 +1,9 @@
 const express = require("express");
+const { errorDetail } = require("../utils/errors");
 const Resource = require("../models/Resource");
 const Workshop = require("../models/Workshop");
 const { auth, adminOnly } = require("../middleware/auth");
+const { isSafeUrl } = require("../utils/validate");
 const { scopedWorkshop } = require("../utils/scope");
 
 const router = express.Router();
@@ -16,6 +18,9 @@ router.post("/", auth, adminOnly, async (req, res) => {
     if (!["pdf", "video", "link"].includes(type)) {
       return res.status(400).json({ message: "Invalid resource type" });
     }
+    if (!isSafeUrl(url)) {
+      return res.status(400).json({ message: "Link must start with http:// or https://" });
+    }
     const workshop = await scopedWorkshop(req, workshopId);
     if (!workshop) return res.status(404).json({ message: "Workshop not found" });
 
@@ -28,7 +33,7 @@ router.post("/", auth, adminOnly, async (req, res) => {
     });
     res.status(201).json(resource);
   } catch (err) {
-    res.status(500).json({ message: "Server error", error: err.message });
+    res.status(500).json({ message: "Server error", error: errorDetail(err) });
   }
 });
 

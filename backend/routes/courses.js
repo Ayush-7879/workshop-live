@@ -1,4 +1,5 @@
 const express = require("express");
+const { errorDetail } = require("../utils/errors");
 const Course = require("../models/Course");
 const Payment = require("../models/Payment");
 const Notification = require("../models/Notification");
@@ -23,7 +24,7 @@ router.post("/", auth, adminOnly, async (req, res) => {
     });
     res.status(201).json(course);
   } catch (err) {
-    res.status(500).json({ message: "Server error", error: err.message });
+    res.status(500).json({ message: "Server error", error: errorDetail(err) });
   }
 });
 
@@ -39,7 +40,7 @@ router.get("/", auth, async (req, res) => {
     const withStatus = courses.map((c) => ({ ...c.toObject(), purchased: paidCourseIds.has(c._id.toString()) }));
     res.json(withStatus);
   } catch (err) {
-    res.status(500).json({ message: "Server error", error: err.message });
+    res.status(500).json({ message: "Server error", error: errorDetail(err) });
   }
 });
 

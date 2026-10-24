@@ -1,4 +1,5 @@
 const express = require("express");
+const { errorDetail } = require("../utils/errors");
 const Workshop = require("../models/Workshop");
 const { auth } = require("../middleware/auth");
 
@@ -47,7 +48,7 @@ router.get("/me", auth, async (req, res) => {
       },
     });
   } catch (err) {
-    res.status(500).json({ message: "Server error", error: err.message });
+    res.status(500).json({ message: "Server error", error: errorDetail(err) });
   }
 });
 

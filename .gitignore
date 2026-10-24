@@ -1,10 +1,30 @@
+# Dependencies
 node_modules/
+
+# Local environment files (secrets). Templates named .env.example stay tracked.
 .env
-.env.local
+.env.*
+*.env
+!.env.example
+
+# Build output
 dist/
 build/
+coverage/
+
+# Logs
 *.log
+npm-debug.log*
+
+# OS and editor files
 .DS_Store
-Claude outputs/
+Thumbs.db
+.vscode/
+.idea/
+
+# Local tooling settings
+.claude/
+
+# User uploads (the folder itself is kept with .gitkeep)
 backend/uploads/*
 !backend/uploads/.gitkeep

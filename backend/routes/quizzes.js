@@ -1,4 +1,5 @@
 const express = require("express");
+const { errorDetail } = require("../utils/errors");
 const Quiz = require("../models/Quiz");
 const QuizAttempt = require("../models/QuizAttempt");
 const Workshop = require("../models/Workshop");
@@ -26,7 +27,7 @@ router.post("/", auth, adminOnly, async (req, res) => {
     const quiz = await Quiz.create({ workshop: workshopId, title, questions, createdBy: req.user.id });
     res.status(201).json(quiz);
   } catch (err) {
-    res.status(500).json({ message: "Server error", error: err.message });
+    res.status(500).json({ message: "Server error", error: errorDetail(err) });
   }
 });
 
@@ -57,7 +58,7 @@ router.get("/workshop/:workshopId", auth, async (req, res) => {
     );
     res.json(result);
   } catch (err) {
-    res.status(500).json({ message: "Server error", error: err.message });
+    res.status(500).json({ message: "Server error", error: errorDetail(err) });
   }
 });
 
@@ -100,7 +101,7 @@ router.post("/:id/submit", auth, async (req, res) => {
     if (err.code === 11000) {
       return res.status(400).json({ message: "You have already submitted this quiz" });
     }
-    res.status(500).json({ message: "Server error", error: err.message });
+    res.status(500).json({ message: "Server error", error: errorDetail(err) });
   }
 });
 

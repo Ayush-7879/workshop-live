@@ -1,9 +1,11 @@
 const express = require("express");
+const { errorDetail } = require("../utils/errors");
 const Workshop = require("../models/Workshop");
 const Notification = require("../models/Notification");
 const User = require("../models/User");
 const Certificate = require("../models/Certificate");
 const { auth, adminOnly } = require("../middleware/auth");
+const { isOptionalSafeUrl } = require("../utils/validate");
 
 const ATTEND_POINTS = 10;
 const COMPLETION_BONUS_POINTS = 5;
@@ -149,6 +151,9 @@ router.post("/", auth, adminOnly, async (req, res) => {
     if (!title || !scheduledAt) {
       return res.status(400).json({ message: "Title and date/time are required" });
     }
+    if (!isOptionalSafeUrl(meetLink) || !isOptionalSafeUrl(location?.mapLink)) {
+      return res.status(400).json({ message: "Links must start with http:// or https://" });
+    }
     const workshop = await Workshop.create({
       title,
       description,
@@ -165,7 +170,7 @@ router.post("/", auth, adminOnly, async (req, res) => {
     });
     res.status(201).json(workshop);
   } catch (err) {
-    res.status(500).json({ message: "Server error", error: err.message });
+    res.status(500).json({ message: "Server error", error: errorDetail(err) });
   }
 });
 
@@ -175,6 +180,9 @@ router.put("/:id", auth, adminOnly, async (req, res) => {
     const workshop = await Workshop.findOne({ _id: req.params.id, institute: req.user.institute });
     if (!workshop) return res.status(404).json({ message: "Workshop not found" });
     const { title, description, meetLink, scheduledAt, mode, location } = req.body;
+    if (!isOptionalSafeUrl(meetLink) || !isOptionalSafeUrl(location?.mapLink)) {
+      return res.status(400).json({ message: "Links must start with http:// or https://" });
+    }
     if (title !== undefined) workshop.title = title;
     if (description !== undefined) workshop.description = description;
     if (meetLink !== undefined) workshop.meetLink = meetLink;
@@ -189,7 +197,7 @@ router.put("/:id", auth, adminOnly, async (req, res) => {
     await workshop.save();
     res.json(workshop);
   } catch (err) {
-    res.status(500).json({ message: "Server error", error: err.message });
+    res.status(500).json({ message: "Server error", error: errorDetail(err) });
   }
 });
 
@@ -227,7 +235,7 @@ router.post("/:id/join", auth, async (req, res) => {
     const updated = await Workshop.findById(workshop._id).populate(POPULATE_FIELDS);
     res.json(updated);
   } catch (err) {
-    res.status(500).json({ message: "Server error", error: err.message });
+    res.status(500).json({ message: "Server error", error: errorDetail(err) });
   }
 });
 
@@ -280,7 +288,7 @@ router.patch("/:id/requests/:studentId", auth, adminOnly, async (req, res) => {
     const updated = await Workshop.findById(workshop._id).populate(POPULATE_FIELDS);
     res.json(updated);
   } catch (err) {
-    res.status(500).json({ message: "Server error", error: err.message });
+    res.status(500).json({ message: "Server error", error: errorDetail(err) });
   }
 });
 
@@ -310,7 +318,7 @@ router.post("/:id/attend", auth, async (req, res) => {
     const updated = await Workshop.findById(workshop._id).populate(POPULATE_FIELDS);
     res.json(updated);
   } catch (err) {
-    res.status(500).json({ message: "Server error", error: err.message });
+    res.status(500).json({ message: "Server error", error: errorDetail(err) });
   }
 });
 
@@ -321,6 +329,9 @@ router.patch("/:id/status", auth, adminOnly, async (req, res) => {
     const allowed = ["scheduled", "live", "delayed", "cancelled", "completed"];
     if (!allowed.includes(status)) {
       return res.status(400).json({ message: "Invalid status" });
+    }
+    if (!isOptionalSafeUrl(meetLink)) {
+      return res.status(400).json({ message: "Links must start with http:// or https://" });
     }
     const workshop = await Workshop.findOne({ _id: req.params.id, institute: req.user.institute });
     if (!workshop) return res.status(404).json({ message: "Workshop not found" });
@@ -381,7 +392,7 @@ router.patch("/:id/status", auth, adminOnly, async (req, res) => {
     const updated = await Workshop.findById(workshop._id).populate(POPULATE_FIELDS);
     res.json(updated);
   } catch (err) {
-    res.status(500).json({ message: "Server error", error: err.message });
+    res.status(500).json({ message: "Server error", error: errorDetail(err) });
   }
 });
 
@@ -395,7 +406,7 @@ router.delete("/:id", auth, adminOnly, async (req, res) => {
     io.to(`institute:${workshop.institute}`).emit("workshop:list-update", { _id: req.params.id, deleted: true });
     res.json({ message: "Workshop deleted successfully" });
   } catch (err) {
-    res.status(500).json({ message: "Server error", error: err.message });
+    res.status(500).json({ message: "Server error", error: errorDetail(err) });
   }
 });
 
